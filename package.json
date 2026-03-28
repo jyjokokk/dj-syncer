@@ -1,0 +1,9 @@
+{
+  "name": "dj-syncer",
+  "version": "1.0.0",
+  "description": "Playlist syncing helper for DJs",
+  "main": "index.js",
+  "author": "Jyrki Kokkola <j.j.kokkola@gmail.com>",
+  "license": "MIT",
+  "private": false
+}
