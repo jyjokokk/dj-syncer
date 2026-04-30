@@ -11,5 +11,5 @@ export async function runMigrations(db: Database): Promise<void> {
 	const sql = await Bun.file(
 		new URL("./migrations/001_init.sql", import.meta.url).pathname,
 	).text();
-	db.exec(sql);
+	db.run(sql);
 }
