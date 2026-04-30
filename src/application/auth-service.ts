@@ -46,8 +46,14 @@ export class AuthService {
 		if (!link) {
 			return { ok: false, error: { kind: "auth_failed", message: "no link" } };
 		}
-		if (!this.isExpired(link) || !link.refreshToken) {
+		if (!this.isExpired(link)) {
 			return { ok: true, value: link };
+		}
+		if (!link.refreshToken) {
+			return {
+				ok: false,
+				error: { kind: "auth_failed", message: "token expired" },
+			};
 		}
 		const refreshed = await this.providers[provider].refreshTokens(
 			link.refreshToken,
