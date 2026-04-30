@@ -10,9 +10,46 @@ import { AuthService, type ProviderRegistry } from "./auth-service";
 const calls: any = {};
 let store: Map<string, ServiceLink>;
 let stateStore: Map<string, PendingOAuth>;
-let links: ServiceLinkRepository;
-let states: OAuthStateStore;
-let spotify: MusicProvider;
+const links: ServiceLinkRepository = {
+	upsert: async (l) => {
+		store.set(`${l.userId}:${l.provider}`, l);
+	},
+	find: async (userId, provider) => store.get(`${userId}:${provider}`) ?? null,
+};
+const states: OAuthStateStore = {
+	create: async (state, pending) => void stateStore.set(state, pending),
+	consume: async (state) => {
+		const pending = stateStore.get(state) ?? null;
+		if (pending) stateStore.delete(state);
+		return pending;
+	},
+};
+const spotify = {
+	name: "spotify",
+	getAuthUrl: (state) => `https://spotify.test/auth?state=${state}`,
+	exchangeCodeForTokens: async (code) => {
+		calls.spotify.exchanged = code;
+		return {
+			ok: true,
+			value: {
+				accessToken: "at",
+				refreshToken: "rt",
+				expiresAt: new Date(Date.now() + 60_000),
+			},
+		};
+	},
+	refreshTokens: async (rt) => {
+		calls.spotify.refreshed = rt;
+		return {
+			ok: true,
+			value: {
+				accessToken: "at2",
+				refreshToken: "rt2",
+				expiresAt: new Date(Date.now() + 60_000),
+			},
+		};
+	},
+} as MusicProvider;
 let providers: ProviderRegistry;
 let service: AuthService;
 
@@ -20,48 +57,6 @@ beforeEach(() => {
 	calls.spotify = {};
 	store = new Map();
 	stateStore = new Map();
-	links = {
-		upsert: async (l) => {
-			store.set(`${l.userId}:${l.provider}`, l);
-		},
-		find: async (userId, provider) =>
-			store.get(`${userId}:${provider}`) ?? null,
-	};
-	states = {
-		create: async (state, pending) => void stateStore.set(state, pending),
-		consume: async (state) => {
-			const pending = stateStore.get(state) ?? null;
-			if (pending) stateStore.delete(state);
-			return pending;
-		},
-	};
-	spotify = {
-		name: "spotify",
-		getAuthUrl: (state) => `https://spotify.test/auth?state=${state}`,
-		exchangeCodeForTokens: async (code) => {
-			calls.spotify.exchanged = code;
-			return {
-				ok: true,
-				value: {
-					accessToken: "at",
-					refreshToken: "rt",
-					expiresAt: new Date(Date.now() + 60_000),
-				},
-			};
-		},
-		refreshTokens: async (rt) => {
-			calls.spotify.refreshed = rt;
-			return {
-				ok: true,
-				value: {
-					accessToken: "at2",
-					refreshToken: "rt2",
-					expiresAt: new Date(Date.now() + 60_000),
-				},
-			};
-		},
-		listPlaylists: async () => ({ ok: true, value: [] }),
-	};
 	providers = { spotify, tidal: spotify };
 	service = new AuthService(providers, links, states);
 });

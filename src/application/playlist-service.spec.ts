@@ -5,7 +5,23 @@ import type { ProviderRegistry } from "./auth-service";
 import { PlaylistService } from "./playlist-service";
 
 const calls: any = {};
-let spotify: MusicProvider;
+const spotify: MusicProvider = {
+	name: "spotify",
+	getAuthUrl: () => "x",
+	exchangeCodeForTokens: async () => ({
+		ok: false,
+		error: { kind: "not_implemented" },
+	}),
+	refreshTokens: async () => ({
+		ok: false,
+		error: { kind: "not_implemented" },
+	}),
+	listPlaylists: async (token) => {
+		calls.spotify.listed = token;
+		return { ok: true, value: [samplePlaylist] };
+	},
+};
+
 let providers: ProviderRegistry;
 let service: PlaylistService;
 
@@ -37,22 +53,6 @@ const authService: any = {
 
 beforeEach(() => {
 	calls.spotify = {};
-	spotify = {
-		name: "spotify",
-		getAuthUrl: () => "x",
-		exchangeCodeForTokens: async () => ({
-			ok: false,
-			error: { kind: "not_implemented" },
-		}),
-		refreshTokens: async () => ({
-			ok: false,
-			error: { kind: "not_implemented" },
-		}),
-		listPlaylists: async (token) => {
-			calls.spotify.listed = token;
-			return { ok: true, value: [samplePlaylist] };
-		},
-	};
 	providers = { spotify, tidal: spotify };
 	service = new PlaylistService(providers, authService);
 });

@@ -3,32 +3,31 @@ import type { NewUser, User, UserRepository } from "../domain/user";
 import { UserService } from "./user-service";
 
 const calls: any = {};
-let repo: UserRepository;
+const repo = {
+	create: async (u: NewUser) => {
+		calls.user.created = u;
+		stored = {
+			id: "u_1",
+			email: u.email,
+			createdAt: new Date("2026-01-01T00:00:00Z"),
+		};
+		return stored;
+	},
+	findById: async (id: string) => {
+		calls.user.findById = id;
+		return stored;
+	},
+	findByEmail: async (email: string) => {
+		calls.user.findByEmail = email;
+		return stored?.email === email ? stored : null;
+	},
+} as UserRepository;
 let service: UserService;
 let stored: User | null;
 
 beforeEach(() => {
 	calls.user = {};
 	stored = null;
-	repo = {
-		create: async (u: NewUser) => {
-			calls.user.created = u;
-			stored = {
-				id: "u_1",
-				email: u.email,
-				createdAt: new Date("2026-01-01T00:00:00Z"),
-			};
-			return stored;
-		},
-		findById: async (id: string) => {
-			calls.user.findById = id;
-			return stored;
-		},
-		findByEmail: async (email: string) => {
-			calls.user.findByEmail = email;
-			return stored?.email === email ? stored : null;
-		},
-	};
 	service = new UserService(repo);
 });
 

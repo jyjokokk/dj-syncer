@@ -40,11 +40,13 @@ You are a TypeScript specialist focused on modern Node.js and Bun development.
 - Try to avoid using jest mocks; prefer dependency injection and test doubles where possible
 - Unit tests should focus on critical logic and edge cases
 - Unit tests should focus on the component that is tested, not its dependencies. For dependencies, you should only verify that they were called correctly, not their internal behavior
+- Only mock the specific functions that are used by the component under test, not the entire dependency.
 - Example of test dependency injection and test file structure:
 
 ```ts
 // user-service.spec.ts
 import { UserService } from "./user-service";
+import type { UserRepository } from "./user-repository";
 
 const id = 1
 const name = "Test User"
@@ -53,12 +55,12 @@ const expirationDate = new Date('2060-01-01')
 const calls: any = {}
 let instance: UserService = null!
 
-const userRepoMock: any = {
+const userRepoMock = {
   getUserById: (id) => {
     calls.userRepoMock.getUserByIdCalled = id;
     return { id, name, expirationDate };
   }
-};
+} as UserRepository;
 
 beforeEach(() => {
   calls.userRepoMock = {};
