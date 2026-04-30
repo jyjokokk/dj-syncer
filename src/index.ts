@@ -1,21 +1,45 @@
-export function add(a: number, b: number): number {
-	return a + b;
-}
+import { AuthService, type ProviderRegistry } from "./application/auth-service";
+import { PlaylistService } from "./application/playlist-service";
+import { UserService } from "./application/user-service";
+import { loadEnv } from "./config/env";
+import { SqliteServiceLinkRepository } from "./infrastructure/db/service-link-repository";
+import { openDatabase, runMigrations } from "./infrastructure/db/sqlite";
+import { SqliteUserRepository } from "./infrastructure/db/user-repository";
+import {
+	type SpotifyConfig,
+	SpotifyProvider,
+} from "./infrastructure/providers/spotify-provider";
+import { TidalProvider } from "./infrastructure/providers/tidal-provider";
+import { buildServer } from "./interface/http/server";
 
-export function subtract(a: number, b: number): number {
-	return a - b;
-}
+const env = loadEnv();
+const db = openDatabase(env.DB_PATH);
+await runMigrations(db);
 
-class UserRepository {
-	getFromRepo() {
-		return {};
-	}
-}
+const userRepo = new SqliteUserRepository(db);
+const linkRepo = new SqliteServiceLinkRepository(db);
 
-export class UserService {
-	constructor(private readonly userRepository: UserRepository) {}
-	getUser(id: number) {
-		this.userRepository.getFromRepo();
-		return { id, name: `User${id}` };
-	}
-}
+const spotifyConfig: SpotifyConfig = {
+	clientId: env.SPOTIFY_CLIENT_ID ?? "missing",
+	clientSecret: env.SPOTIFY_CLIENT_SECRET ?? "missing",
+	redirectUri:
+		env.SPOTIFY_REDIRECT_URI ??
+		`http://localhost:${env.PORT}/auth/spotify/callback`,
+};
+
+const providers: ProviderRegistry = {
+	spotify: new SpotifyProvider(spotifyConfig),
+	tidal: new TidalProvider(),
+};
+
+const userService = new UserService(userRepo);
+const authService = new AuthService(providers, linkRepo);
+const playlistService = new PlaylistService(providers, authService);
+
+const server = buildServer(env.PORT, {
+	users: userService,
+	auth: authService,
+	playlists: playlistService,
+});
+
+console.log(`dj-syncer listening on :${server.port}`);
