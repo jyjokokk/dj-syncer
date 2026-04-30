@@ -1,9 +1,5 @@
 import type { PlaylistService } from "../../../application/playlist-service";
-import type { ProviderName } from "../../../domain/service-link";
-
-const PROVIDERS: ReadonlyArray<ProviderName> = ["spotify", "tidal"];
-const isProvider = (s: string): s is ProviderName =>
-	(PROVIDERS as readonly string[]).includes(s);
+import { isProvider } from "../../../utils/provider-utils";
 
 export function playlistRoutes(playlists: PlaylistService) {
 	return {

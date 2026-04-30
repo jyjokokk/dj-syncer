@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { UserService } from "../../../application/user-service";
 
-const CreateBody = z.object({ email: z.string().email() });
+const CreateBody = z.object({ email: z.email() });
 
 export function userRoutes(users: UserService) {
 	return {
