@@ -1,7 +1,19 @@
+# General instructions
+
+- DO NOT DO ANY GIT OPERATIONS WITHOUT ASKING FOR PERMISSION FIRST
+- If you're unsure or are missing context, do not assume, but check relevant documentation first
+  - Examples of documentation (these are just examples):
+    - MDN for JavaScript
+    - GitHub or npmjs for node packagaes
+    - man page for git
+- Don't add code comments unless necessary (eg. explaining a regex pattern, complex but compact logic like calculation
+  or long ternary operations)
+
 ## Application structure
 
 - Code files are stored under `src/`
 - Assets are in `assets/`
+- Integration and e2e-tests are located under `tests/` and named `*.test.ts`, unit tests are next to component files and named `*.spec.ts`
 - SQLite database file is `database.sqlite3`
 - Follows Clean Architecture principles
 
@@ -32,13 +44,5 @@ Default to using Bun instead of Node.js.
 ## Testing
 
 Use `bun test` to run tests.
-
-```ts#index.test.ts
-import { test, expect } from "bun:test";
-
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
