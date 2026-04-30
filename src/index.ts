@@ -5,6 +5,7 @@ import { loadEnv } from "./config/env";
 import { SqliteServiceLinkRepository } from "./infrastructure/db/service-link-repository";
 import { openDatabase, runMigrations } from "./infrastructure/db/sqlite";
 import { SqliteUserRepository } from "./infrastructure/db/user-repository";
+import { InMemoryOAuthStateStore } from "./infrastructure/oauth-state-store";
 import {
 	type SpotifyConfig,
 	SpotifyProvider,
@@ -18,6 +19,7 @@ await runMigrations(db);
 
 const userRepo = new SqliteUserRepository(db);
 const linkRepo = new SqliteServiceLinkRepository(db);
+const oauthStateStore = new InMemoryOAuthStateStore();
 
 const spotifyConfig: SpotifyConfig = {
 	clientId: env.SPOTIFY_CLIENT_ID ?? "missing",
@@ -33,7 +35,7 @@ const providers: ProviderRegistry = {
 };
 
 const userService = new UserService(userRepo);
-const authService = new AuthService(providers, linkRepo);
+const authService = new AuthService(providers, linkRepo, oauthStateStore);
 const playlistService = new PlaylistService(providers, authService);
 
 const server = buildServer(env.PORT, {

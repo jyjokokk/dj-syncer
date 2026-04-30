@@ -1,4 +1,5 @@
 import type { MusicProvider, Result } from "../domain/music-provider";
+import type { OAuthStateStore } from "../domain/oauth-state";
 import type {
 	ProviderName,
 	ServiceLink,
@@ -7,29 +8,47 @@ import type {
 
 export type ProviderRegistry = Record<ProviderName, MusicProvider>;
 
-export type CompleteOAuthInput = {
-	userId: string;
-	provider: ProviderName;
-	code: string;
+export type StartOAuthResult = {
+	authUrl: string;
+	state: string;
 };
 
 export class AuthService {
 	constructor(
 		private readonly providers: ProviderRegistry,
 		private readonly links: ServiceLinkRepository,
+		private readonly states: OAuthStateStore,
 	) {}
 
-	startOAuth(provider: ProviderName, state: string): string {
-		return this.providers[provider].getAuthUrl(state);
+	async startOAuth(
+		provider: ProviderName,
+		userId: string,
+	): Promise<StartOAuthResult> {
+		const state = crypto.randomUUID();
+		await this.states.create(state, { userId, provider });
+		return {
+			authUrl: this.providers[provider].getAuthUrl(state),
+			state,
+		};
 	}
 
-	async completeOAuth(input: CompleteOAuthInput): Promise<Result<ServiceLink>> {
-		const provider = this.providers[input.provider];
-		const tokens = await provider.exchangeCodeForTokens(input.code);
+	async completeOAuth(
+		provider: ProviderName,
+		state: string,
+		code: string,
+	): Promise<Result<ServiceLink>> {
+		const pending = await this.states.consume(state);
+		if (!pending || pending.provider !== provider) {
+			return {
+				ok: false,
+				error: { kind: "auth_failed", message: "invalid state" },
+			};
+		}
+		const tokens = await this.providers[provider].exchangeCodeForTokens(code);
 		if (!tokens.ok) return tokens;
 		const link: ServiceLink = {
-			userId: input.userId,
-			provider: input.provider,
+			userId: pending.userId,
+			provider,
 			accessToken: tokens.value.accessToken,
 			refreshToken: tokens.value.refreshToken,
 			expiresAt: tokens.value.expiresAt,
