@@ -48,14 +48,15 @@ import { UserService } from "./user-service";
 
 const id = 1
 const name = "Test User"
+const expirationDate = new Date('2060-01-01')
 
 const calls: any = {}
 let instance: UserService = null!
 
 const userRepoMock: any = {
-  getUserById: () => {
-    calls.userRepoMock.getUserByIdCalled = true;
-    return { id, name };
+  getUserById: (id) => {
+    calls.userRepoMock.getUserByIdCalled = id;
+    return { id, name, expirationDate };
   }
 };
 
@@ -67,8 +68,8 @@ beforeEach(() => {
 describe("UserService", () => {
   it("should fetch user by ID", async () => {
     const user = await instance.getUser(id);
-    expect(calls.userRepoMock.getUserByIdCalled).toBe(true);
-    expect(user).toStrictEqual({ id, name });
+    expect(calls.userRepoMock.getUserByIdCalled).toStrictEqual(id);
+    expect(user).toEqual({ id, name, expirationDate });
   });
 });
 ```
