@@ -1,9 +1,30 @@
 {
-  "name": "dj-syncer",
-  "version": "1.0.0",
-  "description": "Playlist syncing helper for DJs",
-  "main": "index.js",
-  "author": "Jyrki Kokkola <j.j.kokkola@gmail.com>",
-  "license": "MIT",
-  "private": false
+	"name": "dj-syncer",
+	"version": "1.0.0",
+	"description": "Playlist syncing helper for DJs",
+	"main": "src/index.ts",
+	"author": "Jyrki Kokkola <j.j.kokkola@gmail.com>",
+	"license": "MIT",
+	"private": true,
+	"scripts": {
+		"start": "bun src/index.ts",
+		"dev": "bun --watch src/index.ts",
+		"dev:hot": "bun --watch --hot src/index.ts",
+		"lint": "biome check",
+		"format": "biome format --fix src",
+		"test": "bun test",
+		"test:cov": "bun test --coverage",
+		"test:watch:cov": "bun test --watch --coverage",
+		"test:watch": "bun test --watch"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.13",
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"zod": "^4.4.1"
+	}
 }
