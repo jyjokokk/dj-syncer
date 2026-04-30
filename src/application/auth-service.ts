@@ -1,10 +1,11 @@
-import type { MusicProvider, Result } from "../domain/music-provider";
+import type { MusicProvider } from "../domain/music-provider";
 import type { OAuthStateStore } from "../domain/oauth-state";
 import type {
 	ProviderName,
 	ServiceLink,
 	ServiceLinkRepository,
 } from "../domain/service-link";
+import { errWrapper, okWrapper, type Result } from "../utils/result";
 
 export type ProviderRegistry = Record<ProviderName, MusicProvider>;
 
@@ -39,10 +40,7 @@ export class AuthService {
 	): Promise<Result<ServiceLink>> {
 		const pending = await this.states.consume(state);
 		if (!pending || pending.provider !== provider) {
-			return {
-				ok: false,
-				error: { kind: "auth_failed", message: "invalid state" },
-			};
+			return errWrapper({ kind: "auth_failed", message: "invalid state" });
 		}
 		const tokens = await this.providers[provider].exchangeCodeForTokens(code);
 		if (!tokens.ok) return tokens;
@@ -54,7 +52,7 @@ export class AuthService {
 			expiresAt: tokens.value.expiresAt,
 		};
 		await this.links.upsert(link);
-		return { ok: true, value: link };
+		return okWrapper(link);
 	}
 
 	async getValidLink(
@@ -63,16 +61,13 @@ export class AuthService {
 	): Promise<Result<ServiceLink>> {
 		const link = await this.links.find(userId, provider);
 		if (!link) {
-			return { ok: false, error: { kind: "auth_failed", message: "no link" } };
+			return errWrapper({ kind: "auth_failed", message: "no link" });
 		}
 		if (!this.isExpired(link)) {
-			return { ok: true, value: link };
+			return okWrapper(link);
 		}
 		if (!link.refreshToken) {
-			return {
-				ok: false,
-				error: { kind: "auth_failed", message: "token expired" },
-			};
+			return errWrapper({ kind: "auth_failed", message: "token expired" });
 		}
 		const refreshed = await this.providers[provider].refreshTokens(
 			link.refreshToken,
@@ -85,7 +80,7 @@ export class AuthService {
 			expiresAt: refreshed.value.expiresAt,
 		};
 		await this.links.upsert(next);
-		return { ok: true, value: next };
+		return okWrapper(next);
 	}
 
 	private isExpired(link: ServiceLink): boolean {

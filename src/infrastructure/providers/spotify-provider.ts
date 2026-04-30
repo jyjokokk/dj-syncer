@@ -1,9 +1,6 @@
-import type {
-	MusicProvider,
-	OAuthTokens,
-	Result,
-} from "../../domain/music-provider";
+import type { MusicProvider, OAuthTokens } from "../../domain/music-provider";
 import type { Playlist } from "../../domain/playlist";
+import { errWrapper, okWrapper, type Result } from "../../utils/result";
 
 export type SpotifyConfig = {
 	clientId: string;
@@ -71,10 +68,10 @@ export class SpotifyProvider implements MusicProvider {
 				headers: { Authorization: `Bearer ${accessToken}` },
 			});
 			if (!res.ok) {
-				return {
-					ok: false,
-					error: { kind: "auth_failed", message: `status ${res.status}` },
-				};
+				return errWrapper({
+					kind: "auth_failed",
+					message: `status ${res.status}`,
+				});
 			}
 			const data = (await res.json()) as PlaylistsResponse;
 			const value: Playlist[] = data.items.map((p) => ({
@@ -83,12 +80,9 @@ export class SpotifyProvider implements MusicProvider {
 				name: p.name,
 				trackCount: p.tracks.total,
 			}));
-			return { ok: true, value };
-		} catch (err) {
-			return {
-				ok: false,
-				error: { kind: "network", message: String(err) },
-			};
+			return okWrapper(value);
+		} catch (e) {
+			return errWrapper({ kind: "network", message: String(e) });
 		}
 	}
 
@@ -108,25 +102,19 @@ export class SpotifyProvider implements MusicProvider {
 				body,
 			});
 			if (!res.ok) {
-				return {
-					ok: false,
-					error: { kind: "auth_failed", message: `status ${res.status}` },
-				};
+				return errWrapper({
+					kind: "auth_failed",
+					message: `status ${res.status}`,
+				});
 			}
 			const data = (await res.json()) as TokenResponse;
-			return {
-				ok: true,
-				value: {
-					accessToken: data.access_token,
-					refreshToken: data.refresh_token ?? null,
-					expiresAt: new Date(Date.now() + data.expires_in * 1000),
-				},
-			};
-		} catch (err) {
-			return {
-				ok: false,
-				error: { kind: "network", message: String(err) },
-			};
+			return okWrapper({
+				accessToken: data.access_token,
+				refreshToken: data.refresh_token ?? null,
+				expiresAt: new Date(Date.now() + data.expires_in * 1000),
+			});
+		} catch (e) {
+			return errWrapper({ kind: "network", message: String(e) });
 		}
 	}
 }

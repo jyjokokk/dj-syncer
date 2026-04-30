@@ -1,6 +1,7 @@
-import type { MusicProvider, Result } from "../domain/music-provider";
+import type { MusicProvider } from "../domain/music-provider";
 import type { Playlist } from "../domain/playlist";
 import type { ProviderName } from "../domain/service-link";
+import type { Result } from "../utils/result";
 import type { AuthService, ProviderRegistry } from "./auth-service";
 
 export class PlaylistService {

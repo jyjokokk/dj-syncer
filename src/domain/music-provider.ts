@@ -1,3 +1,4 @@
+import type { Result } from "../utils/result";
 import type { Playlist } from "./playlist";
 import type { ProviderName } from "./service-link";
 
@@ -11,10 +12,6 @@ export type ProviderError =
 	| { kind: "not_implemented" }
 	| { kind: "auth_failed"; message: string }
 	| { kind: "network"; message: string };
-
-export type Result<T, E = ProviderError> =
-	| { ok: true; value: T }
-	| { ok: false; error: E };
 
 export interface MusicProvider {
 	readonly name: ProviderName;
