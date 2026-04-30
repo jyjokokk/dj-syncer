@@ -12,10 +12,10 @@
 		"dev:hot": "bun --watch --hot src/index.ts",
 		"lint": "biome check",
 		"format": "biome format --fix src",
-		"test": "bun test",
-		"test:cov": "bun test --coverage",
-		"test:watch:cov": "bun test --watch --coverage",
-		"test:watch": "bun test --watch"
+		"test": "bun test src",
+		"test:cov": "bun test src --coverage",
+		"test:watch:cov": "bun test src --watch --coverage",
+		"test:watch": "bun test src --watch"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.13",
