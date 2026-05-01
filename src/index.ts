@@ -15,7 +15,7 @@ import { buildServer } from "./interface/http/server";
 
 const env = loadEnv();
 const db = openDatabase(env.DB_PATH);
-await runMigrations(db);
+runMigrations(db);
 
 const userRepo = new SqliteUserRepository(db);
 const linkRepo = new SqliteServiceLinkRepository(db);

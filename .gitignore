@@ -170,3 +170,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 temp.md
+
+*.sqlite3

@@ -19,9 +19,8 @@
 
 ## Tools
 
-Use sqlite3 for database
-
-Default to using Bun instead of Node.js.
+- Use sqlite3 for database
+- Default to using Bun instead of Node.js.
 
 - Use `bun <file>` instead of `node <file>` or `ts-node <file>`
 - Use `bun test` instead of `jest` or `vitest`
@@ -35,11 +34,12 @@ Default to using Bun instead of Node.js.
 
 - `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
 - `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
+  - For `bun:sqlite`, use `.run` instead of `.exec` (the latter is deprecated)
 - `Bun.redis` for Redis. Don't use `ioredis`.
 - `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
 - `WebSocket` is built-in. Don't use `ws`.
 - Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+- Use `Bun.$\<command>` instead of execa/child_process
 
 ## Testing
 

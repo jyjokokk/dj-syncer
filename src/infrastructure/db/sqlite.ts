@@ -1,15 +1,32 @@
 import { Database } from "bun:sqlite";
+import { type Migration, migrations } from "./migrations";
 
 export function openDatabase(path: string): Database {
 	const db = new Database(path);
-	db.exec("PRAGMA journal_mode = WAL;");
-	db.exec("PRAGMA foreign_keys = ON;");
+	db.run("PRAGMA journal_mode = WAL;");
+	db.run("PRAGMA foreign_keys = ON;");
 	return db;
 }
 
-export async function runMigrations(db: Database): Promise<void> {
-	const sql = await Bun.file(
-		new URL("./migrations/001_init.sql", import.meta.url).pathname,
-	).text();
-	db.run(sql);
+export function runMigrations(db: Database): void {
+	db.run(
+		"CREATE TABLE IF NOT EXISTS schema_migrations (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL);",
+	);
+	const applied = new Set(
+		db
+			.query<{ id: string }, []>("SELECT id FROM schema_migrations")
+			.all()
+			.map((r) => r.id),
+	);
+	const insert = db.prepare(
+		"INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)",
+	);
+	const apply = db.transaction((m: Migration) => {
+		db.run(m.sql);
+		insert.run(m.id, new Date().toISOString());
+	});
+	for (const m of migrations) {
+		if (applied.has(m.id)) continue;
+		apply(m);
+	}
 }
