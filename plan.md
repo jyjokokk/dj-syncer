@@ -46,10 +46,10 @@ src/
 
 ### Key design choices
 
-- **Domain has zero dependencies** — pure TS types and interfaces. Use discriminated unions for errors (Result types) per `ts-dev.md`.
+- **Domain has zero dependencies** — pure TS types and interfaces. Use discriminated unions for errors (Result types) per `developer.md`.
 - **`MusicProvider` interface** is the seam that lets us add Apple Music later without touching `application/`. Each provider exposes the same shape: `{ name, getAuthUrl(state), exchangeCodeForTokens(code), refreshTokens(refreshToken), listPlaylists(accessToken) }`.
 - **Token storage**: `service_links` table keyed by `(user_id, provider)` storing `access_token`, `refresh_token`, `expires_at`. `auth-service` handles refresh transparently before calling provider.
-- **Composition root** is `src/index.ts` — instantiates DB, repos, providers, services, then passes the service bag to `server.ts`. No DI framework needed; constructor injection is enough and matches the test style in `ts-dev.md`.
+- **Composition root** is `src/index.ts` — instantiates DB, repos, providers, services, then passes the service bag to `server.ts`. No DI framework needed; constructor injection is enough and matches the test style in `developer.md`.
 - **Biome + Zod already installed**; no new deps for the scaffold itself. Real provider HTTP calls can use `fetch` (built into Bun) — no SDK needed.
 
 ## Files to create
@@ -65,7 +65,7 @@ Critical (must exist for the scaffold to run):
 - `src/interface/http/server.ts` + `routes/users.ts`, `auth.ts`, `playlists.ts`
 - `src/index.ts` — replace toy code with composition root
 
-Co-located tests (`.spec.ts`) for `user-service`, `auth-service`, `playlist-service` using the DI-based test-double style from `ts-dev.md`. Skip tests for thin adapters and routes in this scaffold pass.
+Co-located tests (`.spec.ts`) for `user-service`, `auth-service`, `playlist-service` using the DI-based test-double style from `developer.md`. Skip tests for thin adapters and routes in this scaffold pass.
 
 ## Files to remove / replace
 
