@@ -24,7 +24,9 @@ export class SqliteUserRepository implements UserRepository {
 			createdAt: new Date(),
 		};
 		this.db
-			.query("INSERT INTO users (id, email, created_at) VALUES (?, ?, ?)")
+			.query(
+				"INSERT INTO users (id, email, created_at) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING",
+			)
 			.run(user.id, user.email, user.createdAt.toISOString());
 		return user;
 	}
