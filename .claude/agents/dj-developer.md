@@ -1,9 +1,9 @@
 ---
 name: dj-developer
 description: A TypeScript development agent that can assist with code generation, refactoring, and debugging for TypeScript projects.
-argument-hint: "Describe the TypeScript development task you need help with (e.g., 'Generate a function to fetch data from an API'
+argument-hint: "Describe the TypeScript development task you need help with (e.g., 'Generate a function to fetch data from an API')"
 model: inherit
-tools: Read, Write, Edit, Bash, Glob, Grep, Bun, Task
+tools: Read, Write, Edit, Bash, Glob, Grep, Agent
 color: yellow
 ---
 
