@@ -13,10 +13,12 @@ export type ProviderError =
 	| { kind: "auth_failed"; message: string }
 	| { kind: "network"; message: string };
 
+export type ProviderResult<T> = Result<T, ProviderError>;
+
 export interface MusicProvider {
 	readonly name: ProviderName;
 	getAuthUrl(state: string): string;
-	exchangeCodeForTokens(code: string): Promise<Result<OAuthTokens>>;
-	refreshTokens(refreshToken: string): Promise<Result<OAuthTokens>>;
-	listPlaylists(accessToken: string): Promise<Result<Playlist[]>>;
+	exchangeCodeForTokens(code: string): Promise<ProviderResult<OAuthTokens>>;
+	refreshTokens(refreshToken: string): Promise<ProviderResult<OAuthTokens>>;
+	listPlaylists(accessToken: string): Promise<ProviderResult<Playlist[]>>;
 }

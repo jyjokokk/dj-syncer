@@ -13,7 +13,20 @@ export function playlistRoutes(playlists: PlaylistService) {
 					req.params.provider,
 				);
 				if (!result.ok) {
-					return Response.json({ error: result.error }, { status: 400 });
+					switch (result.error.kind) {
+						case "invalid_state":
+							return Response.json({ error: "invalid_state" }, { status: 400 });
+						case "no_link":
+							return Response.json({ error: "no_link" }, { status: 404 });
+						case "token_expired":
+							return Response.json({ error: "token_expired" }, { status: 401 });
+						case "provider_error":
+							console.error("provider_error", result.error.cause);
+							return Response.json(
+								{ error: "provider_error" },
+								{ status: 502 },
+							);
+					}
 				}
 				return Response.json(result.value);
 			},

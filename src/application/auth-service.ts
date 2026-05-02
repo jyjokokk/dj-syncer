@@ -6,6 +6,7 @@ import type {
 	ServiceLinkRepository,
 } from "../domain/service-link";
 import { errWrapper, okWrapper, type Result } from "../utils/result";
+import type { AuthUseCaseError } from "./errors";
 
 export type ProviderRegistry = Record<ProviderName, MusicProvider>;
 
@@ -37,13 +38,15 @@ export class AuthService {
 		provider: ProviderName,
 		state: string,
 		code: string,
-	): Promise<Result<ServiceLink>> {
+	): Promise<Result<ServiceLink, AuthUseCaseError>> {
 		const pending = await this.states.consume(state);
 		if (!pending || pending.provider !== provider) {
-			return errWrapper({ kind: "auth_failed", message: "invalid state" });
+			return errWrapper({ kind: "invalid_state" });
 		}
 		const tokens = await this.providers[provider].exchangeCodeForTokens(code);
-		if (!tokens.ok) return tokens;
+		if (!tokens.ok) {
+			return errWrapper({ kind: "provider_error", cause: tokens.error });
+		}
 		const link: ServiceLink = {
 			userId: pending.userId,
 			provider,
@@ -65,21 +68,23 @@ export class AuthService {
 	async getValidLink(
 		userId: string,
 		provider: ProviderName,
-	): Promise<Result<ServiceLink>> {
+	): Promise<Result<ServiceLink, AuthUseCaseError>> {
 		const link = await this.links.find(userId, provider);
 		if (!link) {
-			return errWrapper({ kind: "auth_failed", message: "no link" });
+			return errWrapper({ kind: "no_link" });
 		}
 		if (!this.isExpired(link)) {
 			return okWrapper(link);
 		}
 		if (!link.refreshToken) {
-			return errWrapper({ kind: "auth_failed", message: "token expired" });
+			return errWrapper({ kind: "token_expired" });
 		}
 		const refreshed = await this.providers[provider].refreshTokens(
 			link.refreshToken,
 		);
-		if (!refreshed.ok) return refreshed;
+		if (!refreshed.ok) {
+			return errWrapper({ kind: "provider_error", cause: refreshed.error });
+		}
 		const next: ServiceLink = {
 			...link,
 			accessToken: refreshed.value.accessToken,

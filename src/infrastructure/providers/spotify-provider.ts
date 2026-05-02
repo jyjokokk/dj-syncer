@@ -1,6 +1,10 @@
-import type { MusicProvider, OAuthTokens } from "../../domain/music-provider";
+import type {
+	MusicProvider,
+	OAuthTokens,
+	ProviderResult,
+} from "../../domain/music-provider";
 import type { Playlist } from "../../domain/playlist";
-import { errWrapper, okWrapper, type Result } from "../../utils/result";
+import { errWrapper, okWrapper } from "../../utils/result";
 
 export type SpotifyConfig = {
 	clientId: string;
@@ -52,7 +56,9 @@ export class SpotifyProvider implements MusicProvider {
 		return `${AUTH_URL}?${params.toString()}`;
 	}
 
-	async exchangeCodeForTokens(code: string): Promise<Result<OAuthTokens>> {
+	async exchangeCodeForTokens(
+		code: string,
+	): Promise<ProviderResult<OAuthTokens>> {
 		const body = new URLSearchParams({
 			grant_type: "authorization_code",
 			code,
@@ -61,7 +67,9 @@ export class SpotifyProvider implements MusicProvider {
 		return this.tokenRequest(body);
 	}
 
-	async refreshTokens(refreshToken: string): Promise<Result<OAuthTokens>> {
+	async refreshTokens(
+		refreshToken: string,
+	): Promise<ProviderResult<OAuthTokens>> {
 		const body = new URLSearchParams({
 			grant_type: "refresh_token",
 			refresh_token: refreshToken,
@@ -69,7 +77,9 @@ export class SpotifyProvider implements MusicProvider {
 		return this.tokenRequest(body);
 	}
 
-	async listPlaylists(accessToken: string): Promise<Result<Playlist[]>> {
+	async listPlaylists(
+		accessToken: string,
+	): Promise<ProviderResult<Playlist[]>> {
 		try {
 			const res = await this.fetch(`${API_BASE}/me/playlists?limit=50`, {
 				headers: { Authorization: `Bearer ${accessToken}` },
@@ -95,7 +105,7 @@ export class SpotifyProvider implements MusicProvider {
 
 	private async tokenRequest(
 		body: URLSearchParams,
-	): Promise<Result<OAuthTokens>> {
+	): Promise<ProviderResult<OAuthTokens>> {
 		const basic = Buffer.from(
 			`${this.config.clientId}:${this.config.clientSecret}`,
 		).toString("base64");

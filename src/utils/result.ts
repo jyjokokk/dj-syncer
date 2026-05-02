@@ -1,8 +1,4 @@
-import type { ProviderError } from "../domain/music-provider";
-
-export type Result<T, E = ProviderError> =
-	| { ok: true; value: T }
-	| { ok: false; error: E };
+export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 
 export function okWrapper<T>(
 	value: T,

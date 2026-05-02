@@ -82,7 +82,7 @@ describe("AuthService", () => {
 	it("rejects callback when state is unknown", async () => {
 		const r = await service.completeOAuth("spotify", "nope", "abc");
 		expect(r.ok).toBe(false);
-		if (!r.ok) expect(r.error.kind).toBe("auth_failed");
+		if (!r.ok) expect(r.error.kind).toBe("invalid_state");
 		expect(calls.spotify.exchanged).toBeUndefined();
 	});
 
@@ -113,9 +113,9 @@ describe("AuthService", () => {
 		expect(calls.spotify.refreshed).toBe("rt");
 	});
 
-	it("returns auth_failed when user has no link", async () => {
+	it("returns no_link when user has no link", async () => {
 		const r = await service.getValidLink("u_missing", "spotify");
 		expect(r.ok).toBe(false);
-		if (!r.ok) expect(r.error.kind).toBe("auth_failed");
+		if (!r.ok) expect(r.error.kind).toBe("no_link");
 	});
 });
