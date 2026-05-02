@@ -10,7 +10,15 @@ export class InMemoryOAuthStateStore implements OAuthStateStore {
 	constructor(private readonly ttlMs: number = DEFAULT_TTL_MS) {}
 
 	async create(state: string, pending: PendingOAuth): Promise<void> {
+		this.sweep();
 		this.entries.set(state, { ...pending, createdAt: Date.now() });
+	}
+
+	private sweep(): void {
+		const cutoff = Date.now() - this.ttlMs;
+		for (const [key, entry] of this.entries) {
+			if (entry.createdAt <= cutoff) this.entries.delete(key);
+		}
 	}
 
 	async consume(state: string): Promise<PendingOAuth | null> {
