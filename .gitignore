@@ -173,3 +173,8 @@ temp.md
 plan.md
 
 *.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Smoke script local state
+.smoke-state.json
