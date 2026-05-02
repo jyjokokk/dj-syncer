@@ -1,4 +1,7 @@
-export type ProviderName = "spotify" | "tidal";
+export const PROVIDERS = ["spotify", "tidal"] as const;
+export type ProviderName = (typeof PROVIDERS)[number];
+export const isProvider = (s: string): s is ProviderName =>
+	(PROVIDERS as readonly string[]).includes(s);
 
 export type ServiceLink = {
 	userId: string;

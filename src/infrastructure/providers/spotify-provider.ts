@@ -4,7 +4,7 @@ import type {
 	ProviderResult,
 } from "../../domain/music-provider";
 import type { Playlist } from "../../domain/playlist";
-import { errWrapper, okWrapper } from "../../utils/result";
+import { err, ok } from "../../utils/result";
 
 export type SpotifyConfig = {
 	clientId: string;
@@ -85,7 +85,7 @@ export class SpotifyProvider implements MusicProvider {
 				headers: { Authorization: `Bearer ${accessToken}` },
 			});
 			if (!res.ok) {
-				return errWrapper({
+				return err({
 					kind: "auth_failed",
 					message: `status ${res.status}`,
 				});
@@ -97,9 +97,9 @@ export class SpotifyProvider implements MusicProvider {
 				name: p.name,
 				trackCount: p.tracks.total,
 			}));
-			return okWrapper(value);
+			return ok(value);
 		} catch (e) {
-			return errWrapper({ kind: "network", message: String(e) });
+			return err({ kind: "network", message: String(e) });
 		}
 	}
 
@@ -119,19 +119,19 @@ export class SpotifyProvider implements MusicProvider {
 				body,
 			});
 			if (!res.ok) {
-				return errWrapper({
+				return err({
 					kind: "auth_failed",
 					message: `status ${res.status}`,
 				});
 			}
 			const data = (await res.json()) as TokenResponse;
-			return okWrapper({
+			return ok({
 				accessToken: data.access_token,
 				refreshToken: data.refresh_token ?? null,
 				expiresAt: new Date(Date.now() + data.expires_in * 1000),
 			});
 		} catch (e) {
-			return errWrapper({ kind: "network", message: String(e) });
+			return err({ kind: "network", message: String(e) });
 		}
 	}
 }

@@ -1,7 +1,7 @@
 import type { MusicProvider } from "../domain/music-provider";
 import type { Playlist } from "../domain/playlist";
 import type { ProviderName } from "../domain/service-link";
-import { errWrapper, type Result } from "../utils/result";
+import { err, type Result } from "../utils/result";
 import type { AuthService, ProviderRegistry } from "./auth-service";
 import type { PlaylistUseCaseError } from "./errors";
 
@@ -20,7 +20,7 @@ export class PlaylistService {
 		const adapter: MusicProvider = this.providers[provider];
 		const result = await adapter.listPlaylists(link.value.accessToken);
 		if (!result.ok) {
-			return errWrapper({ kind: "provider_error", cause: result.error });
+			return err({ kind: "provider_error", cause: result.error });
 		}
 		return result;
 	}

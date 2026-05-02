@@ -6,7 +6,7 @@ import type {
 	UserCreateError,
 	UserRepository,
 } from "../../domain/user";
-import { errWrapper, okWrapper, type Result } from "../../utils/result";
+import { err, ok, type Result } from "../../utils/result";
 
 type Row = {
 	id: string;
@@ -34,8 +34,8 @@ export class SqliteUserRepository implements UserRepository {
 				"INSERT INTO users (id, email, created_at) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING",
 			)
 			.run(user.id, user.email, user.createdAt.toISOString());
-		if (result.changes === 0) return errWrapper("email_conflict");
-		return okWrapper(user);
+		if (result.changes === 0) return err("email_conflict");
+		return ok(user);
 	}
 
 	async findById(id: string): Promise<User | null> {

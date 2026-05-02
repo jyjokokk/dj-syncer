@@ -5,7 +5,7 @@ import type {
 	ServiceLink,
 	ServiceLinkRepository,
 } from "../domain/service-link";
-import { errWrapper, okWrapper, type Result } from "../utils/result";
+import { err, ok, type Result } from "../utils/result";
 import type { AuthUseCaseError } from "./errors";
 
 export type ProviderRegistry = Record<ProviderName, MusicProvider>;
@@ -41,11 +41,11 @@ export class AuthService {
 	): Promise<Result<ServiceLink, AuthUseCaseError>> {
 		const pending = await this.states.consume(state);
 		if (!pending || pending.provider !== provider) {
-			return errWrapper({ kind: "invalid_state" });
+			return err({ kind: "invalid_state" });
 		}
 		const tokens = await this.providers[provider].exchangeCodeForTokens(code);
 		if (!tokens.ok) {
-			return errWrapper({ kind: "provider_error", cause: tokens.error });
+			return err({ kind: "provider_error", cause: tokens.error });
 		}
 		const link: ServiceLink = {
 			userId: pending.userId,
@@ -55,7 +55,7 @@ export class AuthService {
 			expiresAt: tokens.value.expiresAt,
 		};
 		await this.links.upsert(link);
-		return okWrapper(link);
+		return ok(link);
 	}
 
 	findLink(
@@ -71,19 +71,19 @@ export class AuthService {
 	): Promise<Result<ServiceLink, AuthUseCaseError>> {
 		const link = await this.links.find(userId, provider);
 		if (!link) {
-			return errWrapper({ kind: "no_link" });
+			return err({ kind: "no_link" });
 		}
 		if (!this.isExpired(link)) {
-			return okWrapper(link);
+			return ok(link);
 		}
 		if (!link.refreshToken) {
-			return errWrapper({ kind: "token_expired" });
+			return err({ kind: "token_expired" });
 		}
 		const refreshed = await this.providers[provider].refreshTokens(
 			link.refreshToken,
 		);
 		if (!refreshed.ok) {
-			return errWrapper({ kind: "provider_error", cause: refreshed.error });
+			return err({ kind: "provider_error", cause: refreshed.error });
 		}
 		const next: ServiceLink = {
 			...link,
@@ -92,7 +92,7 @@ export class AuthService {
 			expiresAt: refreshed.value.expiresAt,
 		};
 		await this.links.upsert(next);
-		return okWrapper(next);
+		return ok(next);
 	}
 
 	private isExpired(link: ServiceLink): boolean {

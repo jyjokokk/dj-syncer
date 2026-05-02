@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it } from "bun:test";
 import type { NewUser, User, UserRepository } from "../domain/user";
-import { errWrapper, okWrapper } from "../utils/result";
+import { err, ok } from "../utils/result";
 import { UserService } from "./user-service";
 
 const calls: any = {};
 const repo = {
 	create: async (u: NewUser) => {
 		calls.user.created = u;
-		if (stored?.email === u.email) return errWrapper("email_conflict");
+		if (stored?.email === u.email) return err("email_conflict");
 		stored = {
 			id: "u_1",
 			email: u.email,
 			createdAt: new Date("2026-01-01T00:00:00Z"),
 		};
-		return okWrapper(stored);
+		return ok(stored);
 	},
 	findById: async (id: string) => {
 		calls.user.findById = id;

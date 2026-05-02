@@ -13,7 +13,9 @@ export async function closeDatabase(db: Database): Promise<void> {
 	try {
 		db.run("PRAGMA wal_checkpoint(TRUNCATE);");
 		db.run("PRAGMA journal_mode = DELETE;");
-	} catch {}
+	} catch (e) {
+		console.warn("wal checkpoint failed", e);
+	}
 	db.close(true);
 	if (filename && filename !== ":memory:" && filename !== "") {
 		for (const suffix of ["-wal", "-shm"]) {
@@ -21,7 +23,9 @@ export async function closeDatabase(db: Database): Promise<void> {
 			if (await sidecar.exists()) {
 				try {
 					await sidecar.delete();
-				} catch {}
+				} catch (e) {
+					console.warn("failed to delete sqlite sidecar", e);
+				}
 			}
 		}
 	}
