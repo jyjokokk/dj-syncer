@@ -1,11 +1,17 @@
-import type { NewUser, User, UserRepository } from "../domain/user";
+import type {
+	NewUser,
+	User,
+	UserCreateError,
+	UserRepository,
+} from "../domain/user";
+import { errWrapper, type Result } from "../utils/result";
 
 export class UserService {
 	constructor(private readonly users: UserRepository) {}
 
-	async createUser(input: NewUser): Promise<User> {
+	async createUser(input: NewUser): Promise<Result<User, UserCreateError>> {
 		const existing = await this.users.findByEmail(input.email);
-		if (existing) return existing;
+		if (existing) return errWrapper("email_conflict");
 		return this.users.create(input);
 	}
 

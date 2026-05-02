@@ -1,6 +1,12 @@
 import type { Database } from "bun:sqlite";
 import { randomUUID } from "node:crypto";
-import type { NewUser, User, UserRepository } from "../../domain/user";
+import type {
+	NewUser,
+	User,
+	UserCreateError,
+	UserRepository,
+} from "../../domain/user";
+import { errWrapper, okWrapper, type Result } from "../../utils/result";
 
 type Row = {
 	id: string;
@@ -17,18 +23,19 @@ const toUser = (row: Row): User => ({
 export class SqliteUserRepository implements UserRepository {
 	constructor(private readonly db: Database) {}
 
-	async create(input: NewUser): Promise<User> {
+	async create(input: NewUser): Promise<Result<User, UserCreateError>> {
 		const user: User = {
 			id: `u_${randomUUID()}`,
 			email: input.email,
 			createdAt: new Date(),
 		};
-		this.db
+		const result = this.db
 			.query(
 				"INSERT INTO users (id, email, created_at) VALUES (?, ?, ?) ON CONFLICT(email) DO NOTHING",
 			)
 			.run(user.id, user.email, user.createdAt.toISOString());
-		return user;
+		if (result.changes === 0) return errWrapper("email_conflict");
+		return okWrapper(user);
 	}
 
 	async findById(id: string): Promise<User | null> {

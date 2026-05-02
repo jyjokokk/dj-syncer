@@ -11,8 +11,11 @@ export function userRoutes(users: UserService) {
 				if (!parsed.success) {
 					return Response.json({ error: "invalid_body" }, { status: 400 });
 				}
-				const user = await users.createUser(parsed.data);
-				return Response.json(user, { status: 201 });
+				const result = await users.createUser(parsed.data);
+				if (!result.ok) {
+					return Response.json({ error: result.error }, { status: 409 });
+				}
+				return Response.json(result.value, { status: 201 });
 			},
 		},
 		"/users/:id": {
