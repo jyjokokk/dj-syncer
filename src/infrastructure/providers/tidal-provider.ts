@@ -1,6 +1,10 @@
-import type { MusicProvider, OAuthTokens } from "../../domain/music-provider";
+import type {
+	MusicProvider,
+	OAuthTokens,
+	ProviderResult,
+} from "../../domain/music-provider";
 import type { Playlist } from "../../domain/playlist";
-import { err, type Result } from "../../utils/result";
+import { err } from "../../utils/result";
 
 export class TidalProvider implements MusicProvider {
 	readonly name = "tidal" as const;
@@ -9,15 +13,15 @@ export class TidalProvider implements MusicProvider {
 		return "https://tidal.example/not-implemented";
 	}
 
-	async exchangeCodeForTokens(): Promise<Result<OAuthTokens>> {
+	async exchangeCodeForTokens(): Promise<ProviderResult<OAuthTokens>> {
 		return err({ kind: "not_implemented" });
 	}
 
-	async refreshTokens(): Promise<Result<OAuthTokens>> {
+	async refreshTokens(): Promise<ProviderResult<OAuthTokens>> {
 		return err({ kind: "not_implemented" });
 	}
 
-	async listPlaylists(): Promise<Result<Playlist[]>> {
+	async listPlaylists(): Promise<ProviderResult<Playlist[]>> {
 		return err({ kind: "not_implemented" });
 	}
 }
