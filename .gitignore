@@ -169,8 +169,11 @@ Icon[]
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Personal notes
 temp.md
 plan.md
+todo.md
 
 *.sqlite3
 *.sqlite3-shm

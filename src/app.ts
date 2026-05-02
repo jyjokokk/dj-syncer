@@ -4,7 +4,11 @@ import { PlaylistService } from "./application/playlist-service";
 import { UserService } from "./application/user-service";
 import type { Env } from "./config/env";
 import { SqliteServiceLinkRepository } from "./infrastructure/db/service-link-repository";
-import { openDatabase, runMigrations } from "./infrastructure/db/sqlite";
+import {
+	closeDatabase,
+	openDatabase,
+	runMigrations,
+} from "./infrastructure/db/sqlite";
 import { SqliteUserRepository } from "./infrastructure/db/user-repository";
 import { InMemoryOAuthStateStore } from "./infrastructure/oauth-state-store";
 import {
@@ -18,6 +22,7 @@ export type App = {
 	server: ReturnType<typeof buildServer>;
 	services: Services;
 	db: Database;
+	close: () => Promise<void>;
 };
 
 export type BuildAppOptions = {
@@ -56,5 +61,16 @@ export function buildApp(env: Env, options: BuildAppOptions = {}): App {
 	};
 
 	const server = buildServer(env.PORT, services);
-	return { server, services, db };
+
+	let closing: Promise<void> | null = null;
+	const close = (): Promise<void> => {
+		if (closing) return closing;
+		closing = (async () => {
+			await server.stop(true);
+			await closeDatabase(db);
+		})();
+		return closing;
+	};
+
+	return { server, services, db, close };
 }

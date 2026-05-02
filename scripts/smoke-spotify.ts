@@ -163,8 +163,7 @@ async function main(): Promise<number> {
 		console.log(`cached userId in ${STATE_FILE} for next run`);
 		return 0;
 	} finally {
-		app.server.stop(true);
-		app.db.close();
+		await app.close();
 	}
 }
 

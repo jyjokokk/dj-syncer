@@ -32,9 +32,8 @@ beforeEach(() => {
 	spotifyFake.calls.length = 0;
 });
 
-afterAll(() => {
-	app.server.stop(true);
-	app.db.close();
+afterAll(async () => {
+	await app.close();
 });
 
 async function createUser(email: string): Promise<string> {

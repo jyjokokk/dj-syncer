@@ -8,6 +8,25 @@ export function openDatabase(path: string): Database {
 	return db;
 }
 
+export async function closeDatabase(db: Database): Promise<void> {
+	const filename = db.filename;
+	try {
+		db.run("PRAGMA wal_checkpoint(TRUNCATE);");
+		db.run("PRAGMA journal_mode = DELETE;");
+	} catch {}
+	db.close(true);
+	if (filename && filename !== ":memory:" && filename !== "") {
+		for (const suffix of ["-wal", "-shm"]) {
+			const sidecar = Bun.file(`${filename}${suffix}`);
+			if (await sidecar.exists()) {
+				try {
+					await sidecar.delete();
+				} catch {}
+			}
+		}
+	}
+}
+
 export function runMigrations(db: Database): void {
 	db.run(
 		"CREATE TABLE IF NOT EXISTS schema_migrations (id TEXT PRIMARY KEY, applied_at TEXT NOT NULL);",
@@ -21,12 +40,16 @@ export function runMigrations(db: Database): void {
 	const insert = db.prepare(
 		"INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)",
 	);
-	const apply = db.transaction((m: Migration) => {
-		db.run(m.sql);
-		insert.run(m.id, new Date().toISOString());
-	});
-	for (const m of migrations) {
-		if (applied.has(m.id)) continue;
-		apply(m);
+	try {
+		const apply = db.transaction((m: Migration) => {
+			db.run(m.sql);
+			insert.run(m.id, new Date().toISOString());
+		});
+		for (const m of migrations) {
+			if (applied.has(m.id)) continue;
+			apply(m);
+		}
+	} finally {
+		insert.finalize();
 	}
 }
