@@ -38,11 +38,9 @@ export function buildApp(env: Env, options: BuildAppOptions = {}): App {
 	const oauthStateStore = new InMemoryOAuthStateStore();
 
 	const spotifyConfig: SpotifyConfig = {
-		clientId: env.SPOTIFY_CLIENT_ID ?? "missing",
-		clientSecret: env.SPOTIFY_CLIENT_SECRET ?? "missing",
-		redirectUri:
-			env.SPOTIFY_REDIRECT_URI ??
-			`http://localhost:${env.PORT}/auth/spotify/callback`,
+		clientId: env.SPOTIFY_CLIENT_ID,
+		clientSecret: env.SPOTIFY_CLIENT_SECRET,
+		redirectUri: env.SPOTIFY_REDIRECT_URI,
 	};
 
 	const providers: ProviderRegistry = {
