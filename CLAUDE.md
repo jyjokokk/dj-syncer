@@ -9,6 +9,8 @@
     - man page for git
 - Don't add code comments unless necessary (eg. explaining a regex pattern, complex but compact logic like calculation
   or long ternary operations)
+- Run unit tests after making changes (unless they are miniscule)
+- Run integration tests after significant changes
 
 ## Application structure
 
