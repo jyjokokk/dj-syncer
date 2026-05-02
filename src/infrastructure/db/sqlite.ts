@@ -12,11 +12,10 @@ export async function closeDatabase(db: Database): Promise<void> {
 	const filename = db.filename;
 	try {
 		db.run("PRAGMA wal_checkpoint(TRUNCATE);");
-		db.run("PRAGMA journal_mode = DELETE;");
 	} catch (e) {
 		console.warn("wal checkpoint failed", e);
 	}
-	db.close(true);
+	db.close(false);
 	if (filename && filename !== ":memory:" && filename !== "") {
 		for (const suffix of ["-wal", "-shm"]) {
 			const sidecar = Bun.file(`${filename}${suffix}`);
