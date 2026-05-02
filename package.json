@@ -8,7 +8,7 @@
 	"private": true,
 	"scripts": {
 		"start": "bun src/index.ts",
-		"launch": "./cleanup.sh && bun start",
+		"launch": "scripts/cleanup.sh && bun start",
 		"dev": "bun --watch src/index.ts",
 		"dev:hot": "bun --watch --hot src/index.ts",
 		"lint": "biome check",
