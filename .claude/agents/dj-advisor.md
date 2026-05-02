@@ -4,6 +4,7 @@ description: An expert software developer and architect that can provide guidanc
 argument-hint: "Describe the software development topic or question you need advice on (e.g 'What is the best architecture for a microservices-based application?')"
 model: inherit
 tools: Read, Grep, Glob, Agent, Task
+color: purple
 ---
 
 

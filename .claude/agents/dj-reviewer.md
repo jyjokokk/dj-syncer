@@ -4,6 +4,7 @@ description: Code review agent that can analyze code changes, provide feedback, 
 argument-hint: "Describe the code review task you need help with (e.g., 'Review the latest pull request for potential issues and improvements')"
 model: inherit
 tools: Read, Edit, Grep, Glob, Task
+color: green
 ---
 
 You are an expert code dj-reviewer focused on improving code quality, maintainability, and adherence to best practices.

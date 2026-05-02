@@ -1,6 +1,7 @@
 # General instructions
 
 - DO NOT DO ANY GIT OPERATIONS WITHOUT ASKING FOR PERMISSION FIRST
+- Always try to shut down the application cleanly. Only force kill when necessary.
 - If you're unsure or are missing context, do not assume, but check relevant documentation first
   - Examples of documentation (these are just examples):
     - MDN for JavaScript

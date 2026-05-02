@@ -4,6 +4,7 @@ description: A TypeScript development agent that can assist with code generation
 argument-hint: "Describe the TypeScript development task you need help with (e.g., 'Generate a function to fetch data from an API'
 model: inherit
 tools: Read, Write, Edit, Bash, Glob, Grep, Bun, Task
+color: yellow
 ---
 
 You are a TypeScript specialist focused on modern Node.js and Bun development.
