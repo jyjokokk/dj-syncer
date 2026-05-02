@@ -15,7 +15,9 @@
 		"test": "bun test src",
 		"test:cov": "bun test src --coverage",
 		"test:watch:cov": "bun test src --watch --coverage",
-		"test:watch": "bun test src --watch"
+		"test:watch": "bun test src --watch",
+		"test:int": "bun test tests",
+		"smoke:spotify": "bun scripts/smoke-spotify.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.13",

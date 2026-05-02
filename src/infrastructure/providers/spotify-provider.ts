@@ -32,7 +32,14 @@ type PlaylistsResponse = {
 export class SpotifyProvider implements MusicProvider {
 	readonly name = "spotify" as const;
 
-	constructor(private readonly config: SpotifyConfig) {}
+	private readonly fetch: typeof fetch;
+
+	constructor(
+		private readonly config: SpotifyConfig,
+		fetchImpl: typeof fetch = globalThis.fetch,
+	) {
+		this.fetch = fetchImpl;
+	}
 
 	getAuthUrl(state: string): string {
 		const params = new URLSearchParams({
@@ -64,7 +71,7 @@ export class SpotifyProvider implements MusicProvider {
 
 	async listPlaylists(accessToken: string): Promise<Result<Playlist[]>> {
 		try {
-			const res = await fetch(`${API_BASE}/me/playlists?limit=50`, {
+			const res = await this.fetch(`${API_BASE}/me/playlists?limit=50`, {
 				headers: { Authorization: `Bearer ${accessToken}` },
 			});
 			if (!res.ok) {
@@ -93,7 +100,7 @@ export class SpotifyProvider implements MusicProvider {
 			`${this.config.clientId}:${this.config.clientSecret}`,
 		).toString("base64");
 		try {
-			const res = await fetch(TOKEN_URL, {
+			const res = await this.fetch(TOKEN_URL, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",

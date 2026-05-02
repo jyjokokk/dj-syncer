@@ -55,6 +55,13 @@ export class AuthService {
 		return okWrapper(link);
 	}
 
+	findLink(
+		userId: string,
+		provider: ProviderName,
+	): Promise<ServiceLink | null> {
+		return this.links.find(userId, provider);
+	}
+
 	async getValidLink(
 		userId: string,
 		provider: ProviderName,
