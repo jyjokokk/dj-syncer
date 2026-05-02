@@ -3,6 +3,7 @@ import { AuthService, type ProviderRegistry } from "./application/auth-service";
 import { PlaylistService } from "./application/playlist-service";
 import { UserService } from "./application/user-service";
 import type { Env } from "./config/env";
+import { SqliteOAuthStateStore } from "./infrastructure/db/oauth-state-store";
 import { SqliteServiceLinkRepository } from "./infrastructure/db/service-link-repository";
 import {
 	closeDatabase,
@@ -10,7 +11,6 @@ import {
 	runMigrations,
 } from "./infrastructure/db/sqlite";
 import { SqliteUserRepository } from "./infrastructure/db/user-repository";
-import { InMemoryOAuthStateStore } from "./infrastructure/oauth-state-store";
 import {
 	type SpotifyConfig,
 	SpotifyProvider,
@@ -35,7 +35,7 @@ export function buildApp(env: Env, options: BuildAppOptions = {}): App {
 
 	const userRepo = new SqliteUserRepository(db);
 	const linkRepo = new SqliteServiceLinkRepository(db);
-	const oauthStateStore = new InMemoryOAuthStateStore();
+	const oauthStateStore = new SqliteOAuthStateStore(db);
 
 	const spotifyConfig: SpotifyConfig = {
 		clientId: env.SPOTIFY_CLIENT_ID,

@@ -30,6 +30,9 @@
 			"includes": ["**/*.spec.ts", "**/*.test.ts"],
 			"linter": {
 				"rules": {
+					"style": {
+						"noNonNullAssertion": "off"
+					},
 					"suspicious": {
 						"noExplicitAny": "off"
 					}
